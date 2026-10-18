@@ -50,11 +50,13 @@
             letter-spacing: 0.5px;
             border-bottom: 2px solid #e2e8f0;
             padding: 12px 16px;
+            white-space: nowrap;
         }
         .table-custom tbody td {
             padding: 14px 16px;
             vertical-align: middle;
             font-size: 0.85rem;
+            white-space: nowrap;
         }
         .badge-facturado { background-color: #dcfce7; color: #15803d; font-weight: 700; }
         .badge-emitido { background-color: #e0f2fe; color: #0369a1; font-weight: 700; }
@@ -86,12 +88,12 @@
         </div>
     </nav>
 
-    <!-- Contenedor Principal -->
-    <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Contenedor Principal Amplio -->
+    <div class="container-fluid px-4 my-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h3 class="fw-bold mb-1">Módulo de Ventas & SOLPED de Ensayos</h3>
-                <p class="text-muted small mb-0">Gestión transaccional Cabecera-Detalle: Solicitud $\rightarrow$ Factura / Boleta (Etapa 6).</p>
+                <p class="text-muted small mb-0">Gestión transaccional Cabecera-Detalle: Solicitud &rarr; Factura / Boleta (Etapa 6).</p>
             </div>
             <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#modalNuevaVenta">
                 <i class="bi bi-receipt me-1"></i> Generar Orden / Factura
@@ -100,7 +102,7 @@
 
         <div class="card card-custom p-3">
             <div class="table-responsive">
-                <table class="table table-custom table-hover align-middle mb-0">
+                <table class="table table-custom table-hover align-middle mb-0 w-100">
                     <thead>
                         <tr>
                             <th>Código SOLPED</th>
@@ -124,7 +126,7 @@
                                     <td class="small text-muted"><%= s.getFechaEmision() != null ? s.getFechaEmision().substring(0, 10) : "" %></td>
                                     <td class="font-monospace">S/. <%= String.format("%.2f", s.getSubtotal()) %></td>
                                     <td class="font-monospace text-muted">S/. <%= String.format("%.2f", s.getIgv()) %></td>
-                                    <td class="font-monospace fw-bold text-teal">S/. <%= String.format("%.2f", s.getTotal()) %></td>
+                                    <td class="font-monospace fw-bold text-success">S/. <%= String.format("%.2f", s.getTotal()) %></td>
                                     <td>
                                         <% if ("FACTURADO".equalsIgnoreCase(s.getEstado())) { %>
                                             <span class="badge badge-facturado p-2">FACTURADO</span>
@@ -135,7 +137,7 @@
                                         <% } %>
                                     </td>
                                     <td class="text-center">
-                                        <a href="SolicitudServlet?accion=ver&id=<%= s.getId() %>" class="btn btn-sm btn-outline-info" title="Ver Detalle y Desglose">
+                                        <a href="SolicitudServlet?accion=ver&id=<%= s.getId() %>" class="btn btn-sm btn-outline-info me-1" title="Ver Detalle">
                                             <i class="bi bi-file-earmark-text"></i> Detalle
                                         </a>
                                         <% if (!"ANULADO".equalsIgnoreCase(s.getEstado())) { %>
@@ -148,7 +150,7 @@
                         <%  }
                         } else { %>
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">No hay órdenes de ensayo registradas.</td>
+                                <td colspan="9" class="text-center text-muted py-4">No hay órdenes registradas.</td>
                             </tr>
                         <% } %>
                     </tbody>
@@ -157,7 +159,7 @@
         </div>
     </div>
 
-    <!-- Modal Registrar Venta / SOLPED Dinámica -->
+    <!-- Modal Registrar Venta Dinámica -->
     <div class="modal fade" id="modalNuevaVenta" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -167,7 +169,6 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Cabecera -->
                         <div class="row mb-3">
                             <div class="col-md-7">
                                 <label class="form-label small fw-bold">Cliente / Planta Solicitante:</label>
@@ -191,7 +192,6 @@
                         <hr>
                         <h6 class="fw-bold mb-3"><i class="bi bi-list-check"></i> Ensayos Solicitados (Detalle Transaccional)</h6>
 
-                        <!-- Detalle Línea 1 -->
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-md-4">
                                 <input type="text" name="codigoMuestra[]" class="form-control form-control-sm" placeholder="Lote Muestra (ej. ACEITE-GIRASOL-01)" required>
@@ -211,7 +211,6 @@
                             </div>
                         </div>
 
-                        <!-- Detalle Línea 2 opcional -->
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-md-4">
                                 <input type="text" name="codigoMuestra[]" class="form-control form-control-sm" placeholder="Segunda muestra o ensayo (opcional)">
@@ -230,7 +229,6 @@
                                 <input type="number" step="0.01" name="precioUnitario[]" class="form-control form-control-sm" value="180.00">
                             </div>
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>

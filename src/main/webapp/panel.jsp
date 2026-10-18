@@ -425,6 +425,24 @@
         <span class="card-arrow">Gestionar <i class="bi bi-chevron-right"></i></span>
     </div>
 </a>
+    <!-- Módulo Reportería con Apache ECharts & Excel (Etapa 7) -->
+<a href="ReporteServlet" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-blue">
+                <i class="bi bi-pie-chart-fill"></i>
+            </div>
+            <div class="card-body">
+                <h3>Reportería & Analytics</h3>
+                <p>Gráficos analíticos con Apache ECharts y exportación de reportes a Microsoft Excel.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Apache ECharts & XLSX</span>
+        <span class="card-arrow">Ver Reportes <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>
     
         </div>
     </div>
