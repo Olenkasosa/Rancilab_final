@@ -46,8 +46,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RanciLab - Reportes OLAP & Business Analytics</title>
-    <!-- Fonts & Bootstrap 5 -->
+    <title>RanciLab - Reportes OLAP & Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -89,9 +88,14 @@
             font-weight: 800;
             color: var(--primary-navy);
         }
-        .chart-box {
-            height: 340px;
+        .chart-box-top {
+            height: 320px;
             width: 100%;
+        }
+        .chart-tab-box {
+            height: 260px;
+            width: 100%;
+            margin-bottom: 20px;
         }
         .btn-excel {
             background-color: #107c41;
@@ -140,7 +144,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
                 <h3 class="fw-bold mb-1">Módulo 8: Reportes OLAP & Business Analytics</h3>
-                <p class="text-muted small mb-0">Consolidado dimensional de ingresos, stock, salidas y servicios más demandados.</p>
+                <p class="text-muted small mb-0">Consolidado dimensional con gráficos dinámicos integrados y exportación a Excel.</p>
             </div>
         </div>
 
@@ -176,40 +180,40 @@
             </div>
         </div>
 
-        <!-- Fila de Gráficos ECharts -->
+        <!-- Fila de Gráficos Superiores ECharts -->
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="card card-custom p-4">
-                    <div id="chartServicios" class="chart-box"></div>
+                    <div id="chartServicios" class="chart-box-top"></div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card card-custom p-4">
-                    <div id="chartStock" class="chart-box"></div>
+                    <div id="chartStock" class="chart-box-top"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Sección de Tablas de Reporte Requeridas con Descarga a Excel -->
+        <!-- Sección de Pestañas de Reporte con Gráficos Específicos Integrados -->
         <div class="card card-custom p-4">
             <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
                 <li class="nav-item">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabIngresosDiarios">
+                    <button class="nav-link active" id="tab-ingresos-btn" data-bs-toggle="tab" data-bs-target="#tabIngresosDiarios">
                         <i class="bi bi-calendar-check me-1"></i> Reporte Diario de Ingresos
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabVentasGenerales">
+                    <button class="nav-link" id="tab-ventas-btn" data-bs-toggle="tab" data-bs-target="#tabVentasGenerales">
                         <i class="bi bi-receipt me-1"></i> Reporte General de Ventas
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStockActualizado">
+                    <button class="nav-link" id="tab-stock-btn" data-bs-toggle="tab" data-bs-target="#tabStockActualizado">
                         <i class="bi bi-box-seam me-1"></i> Reporte Actualizado de Stock
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabSalidasConsumos">
+                    <button class="nav-link" id="tab-salidas-btn" data-bs-toggle="tab" data-bs-target="#tabSalidasConsumos">
                         <i class="bi bi-arrow-up-right-circle me-1"></i> Reporte Diario de Salidas
                     </button>
                 </li>
@@ -218,12 +222,15 @@
             <div class="tab-content">
                 <!-- 1. Reporte Diario de Ingresos -->
                 <div class="tab-pane fade show active" id="tabIngresosDiarios">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold mb-0 text-muted">Ingresos acumulados por cada fecha de registro</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0 text-muted">Tendencia de Ingresos por Fecha de Emisión</h6>
                         <button class="btn btn-excel" onclick="exportarTablaExcel('tablaIngresosDiarios', 'Reporte_Diario_Ingresos')">
                             <i class="bi bi-file-earmark-excel"></i> Descargar Excel
                         </button>
                     </div>
+                    <!-- Gráfico dentro de la pestaña -->
+                    <div id="chartLineaIngresos" class="chart-tab-box"></div>
+
                     <div class="table-responsive">
                         <table id="tablaIngresosDiarios" class="table table-hover align-middle">
                             <thead class="table-light">
@@ -281,7 +288,7 @@
                                             <td><span class="badge bg-light text-dark border"><%= s.getTipoComprobante() %></span></td>
                                             <td><%= s.getFechaEmision() != null ? s.getFechaEmision().substring(0, 10) : "" %></td>
                                             <td class="font-monospace">S/. <%= String.format("%.2f", s.getSubtotal()) %></td>
-                                            <td class="font-monospace text-muted">S/. <%= String.format("%.2f", s.getIgv()) %></td>
+                                            <td class="font-monospace">S/. <%= String.format("%.2f", s.getIgv()) %></td>
                                             <td class="font-monospace fw-bold text-primary">S/. <%= String.format("%.2f", s.getTotal()) %></td>
                                             <td><span class="badge bg-success"><%= s.getEstado() %></span></td>
                                         </tr>
@@ -294,12 +301,15 @@
 
                 <!-- 3. Reporte Actualizado del Stock -->
                 <div class="tab-pane fade" id="tabStockActualizado">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold mb-0 text-muted">Nivel actual de stock de insumos, grado y proveedor</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0 text-muted">Comparativa de Stock Actual vs. Stock de Seguridad Mínimo</h6>
                         <button class="btn btn-excel" onclick="exportarTablaExcel('tablaStockAct', 'Reporte_Stock_Insumos')">
                             <i class="bi bi-file-earmark-excel"></i> Descargar Excel
                         </button>
                     </div>
+                    <!-- Gráfico dentro de la pestaña -->
+                    <div id="chartComparativaStock" class="chart-tab-box"></div>
+
                     <div class="table-responsive">
                         <table id="tablaStockAct" class="table table-hover align-middle">
                             <thead class="table-light">
@@ -384,125 +394,130 @@
 
     </div>
 
- <!-- Script de Inicialización Robusto de ECharts -->
+    <!-- Script de Inicialización ECharts Completo -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // 1. Gráfico de Barras: Servicios Más Demandados
+            // 1. Gráfico Superior 1: Servicios Más Demandados
             var domServicios = document.getElementById('chartServicios');
-            if (domServicios) {
-                var chartServicios = echarts.init(domServicios);
-                var optionServicios = {
-                    title: {
-                        text: 'Ingresos por Ensayo Fisicoquímico',
-                        left: 'left',
-                        textStyle: { fontSize: 15, fontWeight: 'bold', color: '#0f172a' }
-                    },
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: { type: 'shadow' },
-                        formatter: '{b}: <b>S/. {c}</b>'
-                    },
-                    toolbox: {
-                        show: true,
-                        feature: {
-                            magicType: { show: true, type: ['bar', 'line'], title: { bar: 'Barras', line: 'Líneas' } },
-                            dataView: { show: true, readOnly: true, title: 'Datos' },
-                            saveAsImage: { show: true, title: 'Descargar PNG' }
-                        }
-                    },
-                    grid: {
-                        left: '3%',
-                        right: '4%',
-                        bottom: '8%',
-                        top: '18%',
-                        containLabel: true
-                    },
-                    xAxis: {
-                        type: 'category',
-                        data: ['Rancimat (OSI)', 'POV (Peróxidos)', 'p-Anisidina'],
-                        axisTick: { alignWithLabel: true },
-                        axisLabel: { fontWeight: '600', color: '#334155' }
-                    },
-                    yAxis: {
-                        type: 'value',
-                        name: 'Ingresos (S/.)'
-                    },
-                    series: [{
-                        name: 'Ingresos',
-                        type: 'bar',
-                        barWidth: '40%',
-                        data: [
-                            { value: 430.00, itemStyle: { color: '#0d9488' } },
-                            { value: 245.00, itemStyle: { color: '#0284c7' } },
-                            { value: 151.00, itemStyle: { color: '#d97706' } }
-                        ],
-                        label: {
-                            show: true,
-                            position: 'top',
-                            formatter: 'S/. {c}',
-                            fontWeight: 'bold',
-                            color: '#0f172a'
-                        },
-                        itemStyle: {
-                            borderRadius: [6, 6, 0, 0]
-                        }
-                    }]
-                };
-                chartServicios.setOption(optionServicios);
-            }
+            var chartServicios = echarts.init(domServicios);
+            chartServicios.setOption({
+                title: { text: 'Ingresos por Ensayo Fisicoquímico', left: 'left', textStyle: { fontSize: 15, fontWeight: 'bold' } },
+                tooltip: { trigger: 'axis', formatter: '{b}: <b>S/. {c}</b>' },
+                toolbox: { show: true, feature: { magicType: { type: ['bar', 'line'] }, saveAsImage: {} } },
+                grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+                xAxis: { type: 'category', data: ['Rancimat (OSI)', 'POV (Peróxidos)', 'p-Anisidina'] },
+                yAxis: { type: 'value', name: 'Ingresos (S/.)' },
+                series: [{
+                    name: 'Ingresos',
+                    type: 'bar',
+                    barWidth: '40%',
+                    data: [
+                        { value: 430.00, itemStyle: { color: '#0d9488' } },
+                        { value: 245.00, itemStyle: { color: '#0284c7' } },
+                        { value: 151.00, itemStyle: { color: '#d97706' } }
+                    ],
+                    label: { show: true, position: 'top', formatter: 'S/. {c}', fontWeight: 'bold' },
+                    itemStyle: { borderRadius: [6, 6, 0, 0] }
+                }]
+            });
 
-            // 2. Gráfico de Dona: Estado del Stock de Insumos
+            // 2. Gráfico Superior 2: Dona Estado de Stock
             var domStock = document.getElementById('chartStock');
-            if (domStock) {
-                var chartStock = echarts.init(domStock);
-                var optionStock = {
-                    title: {
-                        text: 'Disponibilidad de Reactivos',
-                        left: 'left',
-                        textStyle: { fontSize: 15, fontWeight: 'bold', color: '#0f172a' }
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: '{b}: <b>{c}</b> ({d}%)'
-                    },
-                    toolbox: {
-                        show: true,
-                        feature: {
-                            saveAsImage: { show: true, title: 'Descargar PNG' }
-                        }
-                    },
-                    legend: {
-                        bottom: '0%',
-                        left: 'center'
-                    },
-                    series: [{
-                        name: 'Inventario',
-                        type: 'pie',
-                        radius: ['45%', '70%'],
-                        center: ['50%', '50%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 8,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        data: [
-                            { value: <%= disponiblesCount %>, name: 'Stock Disponible', itemStyle: { color: '#10b981' } },
-                            { value: <%= stockCriticoCount %>, name: 'Stock Crítico', itemStyle: { color: '#ef4444' } }
-                        ]
-                    }]
-                };
-                chartStock.setOption(optionStock);
+            var chartStock = echarts.init(domStock);
+            chartStock.setOption({
+                title: { text: 'Disponibilidad de Reactivos', left: 'left', textStyle: { fontSize: 15, fontWeight: 'bold' } },
+                tooltip: { trigger: 'item', formatter: '{b}: <b>{c}</b> ({d}%)' },
+                toolbox: { show: true, feature: { saveAsImage: {} } },
+                legend: { bottom: '0%', left: 'center' },
+                series: [{
+                    name: 'Inventario',
+                    type: 'pie',
+                    radius: ['45%', '70%'],
+                    data: [
+                        { value: <%= disponiblesCount %>, name: 'Stock Disponible', itemStyle: { color: '#10b981' } },
+                        { value: <%= stockCriticoCount %>, name: 'Stock Crítico', itemStyle: { color: '#ef4444' } }
+                    ]
+                }]
+            });
+
+            // 3. Gráfico en Pestaña: Línea Temporal de Ingresos Diarios
+            var domLinea = document.getElementById('chartLineaIngresos');
+            var chartLineaIngresos = echarts.init(domLinea);
+            
+            // Extraer fechas y montos desde el mapa JSP
+            var fechas = [];
+            var montos = [];
+            <% for (Map.Entry<String, Double> entry : ingresosPorFecha.entrySet()) { %>
+                fechas.push('<%= entry.getKey() %>');
+                montos.push(<%= entry.getValue() %>);
+            <% } %>
+
+            if (fechas.length === 0) {
+                fechas = ['2026-10-18'];
+                montos = [<%= totalIngresos %>];
             }
 
-            // Redimensionamiento responsivo
+            chartLineaIngresos.setOption({
+                tooltip: { trigger: 'axis', formatter: '{b}: <b>S/. {c}</b>' },
+                grid: { left: '3%', right: '4%', bottom: '10%', top: '15%', containLabel: true },
+                xAxis: { type: 'category', data: fechas, boundaryGap: false },
+                yAxis: { type: 'value', name: 'Recaudado (S/.)' },
+                series: [{
+                    name: 'Ingresos Diarios',
+                    type: 'line',
+                    smooth: true,
+                    data: montos,
+                    lineStyle: { color: '#0d9488', width: 3 },
+                    areaStyle: { color: 'rgba(13, 148, 136, 0.2)' },
+                    itemStyle: { color: '#0d9488' }
+                }]
+            });
+
+            // 4. Gráfico en Pestaña: Comparativa de Stock (Actual vs Mínimo)
+            var domCompStock = document.getElementById('chartComparativaStock');
+            var chartCompStock = echarts.init(domCompStock);
+
+            var nombresInsumos = [];
+            var stockActuales = [];
+            var stockMinimos = [];
+            <% if (insumos != null) {
+                for (ReactivoInsumo r : insumos) { %>
+                    nombresInsumos.push('<%= r.getCodigo() %>');
+                    stockActuales.push(<%= r.getStockActual() %>);
+                    stockMinimos.push(<%= r.getStockMinimo() %>);
+            <%  }
+            } %>
+
+            chartCompStock.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                legend: { top: '0%' },
+                grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+                xAxis: { type: 'category', data: nombresInsumos },
+                yAxis: { type: 'value', name: 'Cantidad' },
+                series: [
+                    { name: 'Stock Actual', type: 'bar', data: stockActuales, itemStyle: { color: '#0284c7', borderRadius: [4, 4, 0, 0] } },
+                    { name: 'Stock Mínimo', type: 'bar', data: stockMinimos, itemStyle: { color: '#ef4444', borderRadius: [4, 4, 0, 0] } }
+                ]
+            });
+
+            // Ajuste automático al cambiar de pestaña en Bootstrap
+            document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function (tabEl) {
+                tabEl.addEventListener('shown.bs.tab', function () {
+                    chartLineaIngresos.resize();
+                    chartCompStock.resize();
+                });
+            });
+
+            // Redimensionar al cambiar tamaño de pantalla
             window.addEventListener('resize', function () {
-                if (chartServicios) chartServicios.resize();
-                if (chartStock) chartStock.resize();
+                chartServicios.resize();
+                chartStock.resize();
+                chartLineaIngresos.resize();
+                chartCompStock.resize();
             });
         });
 
-        // Función para exportar a Excel con SheetJS
+        // Exportar a Excel
         function exportarTablaExcel(tablaId, nombreArchivo) {
             var tabla = document.getElementById(tablaId);
             if (!tabla) return;
@@ -510,3 +525,7 @@
             XLSX.writeFile(libro, nombreArchivo + ".xlsx");
         }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
