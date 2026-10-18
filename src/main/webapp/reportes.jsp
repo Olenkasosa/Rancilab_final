@@ -384,38 +384,129 @@
 
     </div>
 
-    <!-- Script Avanzado de Apache ECharts con Toolbox, DataZoom y Animaciones Dinámicas -->
+ <!-- Script de Inicialización Robusto de ECharts -->
     <script>
-        // 1. Gráfico 1: Servicios Más Demandados (Barras / Líneas Dinámicas)
-        var chartServiciosDom = document.getElementById('chartServicios');
-        var chartServicios = echarts.init(chartServiciosDom);
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. Gráfico de Barras: Servicios Más Demandados
+            var domServicios = document.getElementById('chartServicios');
+            if (domServicios) {
+                var chartServicios = echarts.init(domServicios);
+                var optionServicios = {
+                    title: {
+                        text: 'Ingresos por Ensayo Fisicoquímico',
+                        left: 'left',
+                        textStyle: { fontSize: 15, fontWeight: 'bold', color: '#0f172a' }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' },
+                        formatter: '{b}: <b>S/. {c}</b>'
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            magicType: { show: true, type: ['bar', 'line'], title: { bar: 'Barras', line: 'Líneas' } },
+                            dataView: { show: true, readOnly: true, title: 'Datos' },
+                            saveAsImage: { show: true, title: 'Descargar PNG' }
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '8%',
+                        top: '18%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['Rancimat (OSI)', 'POV (Peróxidos)', 'p-Anisidina'],
+                        axisTick: { alignWithLabel: true },
+                        axisLabel: { fontWeight: '600', color: '#334155' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'Ingresos (S/.)'
+                    },
+                    series: [{
+                        name: 'Ingresos',
+                        type: 'bar',
+                        barWidth: '40%',
+                        data: [
+                            { value: 430.00, itemStyle: { color: '#0d9488' } },
+                            { value: 245.00, itemStyle: { color: '#0284c7' } },
+                            { value: 151.00, itemStyle: { color: '#d97706' } }
+                        ],
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: 'S/. {c}',
+                            fontWeight: 'bold',
+                            color: '#0f172a'
+                        },
+                        itemStyle: {
+                            borderRadius: [6, 6, 0, 0]
+                        }
+                    }]
+                };
+                chartServicios.setOption(optionServicios);
+            }
 
-        var optionServicios = {
-            animationDuration: 1800,
-            animationEasing: 'cubicOut',
-            title: {
-                text: 'Demanda e Ingresos por Ensayo',
-                subtext: 'Calculado sobre órdenes SOLPED emitidas',
-                left: 'left',
-                textStyle: { fontSize: 14, fontWeight: 'bold', color: '#1e293b' },
-                subtextStyle: { fontSize: 11, color: '#64748b' }
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'shadow' },
-                formatter: function (params) {
-                    var tar = params[0];
-                    return '<strong>' + tar.name + '</strong><br/>' +
-                           '<span style="color:#0d9488;">●</span> ' + tar.seriesName + ': <b>S/. ' + Number(tar.value).toFixed(2) + '</b>';
-                }
-            },
-            toolbox: {
-                show: true,
-                orient: 'horizontal',
-                left: 'right',
-                top: 'top',
-                feature: {
-                    magicType: { show: true, type: ['bar', 'line'], title: { bar: 'Ver en Barras', line: 'Ver en Líneas' } },
-                    dataView: { show: true, readOnly: true, title: 'Datos', lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
-                    restore: { show: true, title: 'Restablecer' },
-                    saveAsImage: { show: true, title
+            // 2. Gráfico de Dona: Estado del Stock de Insumos
+            var domStock = document.getElementById('chartStock');
+            if (domStock) {
+                var chartStock = echarts.init(domStock);
+                var optionStock = {
+                    title: {
+                        text: 'Disponibilidad de Reactivos',
+                        left: 'left',
+                        textStyle: { fontSize: 15, fontWeight: 'bold', color: '#0f172a' }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: <b>{c}</b> ({d}%)'
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            saveAsImage: { show: true, title: 'Descargar PNG' }
+                        }
+                    },
+                    legend: {
+                        bottom: '0%',
+                        left: 'center'
+                    },
+                    series: [{
+                        name: 'Inventario',
+                        type: 'pie',
+                        radius: ['45%', '70%'],
+                        center: ['50%', '50%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 8,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        data: [
+                            { value: <%= disponiblesCount %>, name: 'Stock Disponible', itemStyle: { color: '#10b981' } },
+                            { value: <%= stockCriticoCount %>, name: 'Stock Crítico', itemStyle: { color: '#ef4444' } }
+                        ]
+                    }]
+                };
+                chartStock.setOption(optionStock);
+            }
+
+            // Redimensionamiento responsivo
+            window.addEventListener('resize', function () {
+                if (chartServicios) chartServicios.resize();
+                if (chartStock) chartStock.resize();
+            });
+        });
+
+        // Función para exportar a Excel con SheetJS
+        function exportarTablaExcel(tablaId, nombreArchivo) {
+            var tabla = document.getElementById(tablaId);
+            if (!tabla) return;
+            var libro = XLSX.utils.table_to_book(tabla, { sheet: "Reporte" });
+            XLSX.writeFile(libro, nombreArchivo + ".xlsx");
+        }
+    </script>
