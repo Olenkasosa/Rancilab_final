@@ -1,5 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
+    // Manejo de Cierre de Sesión seguro
+    if ("logout".equals(request.getParameter("action"))) {
+        session.invalidate();
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
     // Verificación de sesión activa
     String usuario = (String) session.getAttribute("usuario");
     String rol = (String) session.getAttribute("rol");
@@ -97,6 +104,9 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-logout:hover {
@@ -175,10 +185,12 @@
             flex-shrink: 0;
         }
 
-        .icon-teal { background: #ccfbf1; color: #0f766e; }
-        .icon-blue { background: #e0f2fe; color: #0369a1; }
-        .icon-amber { background: #fef3c7; color: #b45309; }
+        .icon-teal   { background: #ccfbf1; color: #0f766e; }
+        .icon-blue   { background: #e0f2fe; color: #0369a1; }
+        .icon-amber  { background: #fef3c7; color: #b45309; }
         .icon-purple { background: #f3e8ff; color: #7e22ce; }
+        .icon-indigo { background: #e0e7ff; color: #4338ca; }
+        .icon-slate  { background: #f1f5f9; color: #334155; }
 
         .card-body h3 {
             font-size: 1.05rem;
@@ -230,7 +242,7 @@
         </a>
         <div class="user-info">
             <span class="user-tag">Analista: <strong><%= usuario %></strong> (<%= rol != null ? rol : "OPERADOR" %>)</span>
-            <a href="login.jsp" class="btn-logout">
+            <a href="panel.jsp?action=logout" class="btn-logout">
                 <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
             </a>
         </div>
@@ -240,11 +252,30 @@
     <div class="main-container">
         <div class="header-title-section">
             <h1>Menú Central del Sistema</h1>
-            <p>Selecciona un módulo operativo para gestionar la información analítica y los ensayos fisicoquímicos.</p>
+            <p>Selecciona un módulo operativo para gestionar la información analítica, analistas y ensayos fisicoquímicos.</p>
         </div>
 
         <!-- Módulos Operativos -->
         <div class="modules-grid">
+
+            <!-- Módulo Obligatorio Etapa 4: CRUD de Usuarios / Analistas (Patrón Repository) -->
+            <a href="UsuarioServlet?accion=listar" class="module-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-icon icon-indigo">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="card-body">
+                            <h3>Gestión de Analistas y Usuarios</h3>
+                            <p>Control de roles, operadores certificados, desbloqueo de cuentas bloqueadas y altas con SHA-256.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer-info">
+                    <span class="norm-badge">Patrón Repository</span>
+                    <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
+                </div>
+            </a>
 
             <!-- Módulo 1: Peróxidos -->
             <a href="peroxidos.jsp" class="module-card">
