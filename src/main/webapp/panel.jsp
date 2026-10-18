@@ -389,7 +389,26 @@
         <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
     </div>
 </a>     
-         
+    <!-- Módulo Insumos / Reactivos (Etapa 5 - Repository) -->
+<a href="InsumoServlet?accion=listar" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-teal">
+                <i class="bi bi-flask"></i>
+            </div>
+            <div class="card-body">
+                <h3>Reactivos e Insumos</h3>
+                <p>Control de stock de reactivos valorados, solventes p.a. y fechas de caducidad.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Patrón Repository</span>
+        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>  
+    
+    
         </div>
     </div>
 
