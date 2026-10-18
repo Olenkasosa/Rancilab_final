@@ -90,7 +90,7 @@
             color: var(--primary-navy);
         }
         .chart-box {
-            height: 320px;
+            height: 340px;
             width: 100%;
         }
         .btn-excel {
@@ -180,13 +180,11 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="card card-custom p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Servicios Más Demandados</h5>
                     <div id="chartServicios" class="chart-box"></div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card card-custom p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Estado del Stock de Insumos</h5>
                     <div id="chartStock" class="chart-box"></div>
                 </div>
             </div>
@@ -283,7 +281,7 @@
                                             <td><span class="badge bg-light text-dark border"><%= s.getTipoComprobante() %></span></td>
                                             <td><%= s.getFechaEmision() != null ? s.getFechaEmision().substring(0, 10) : "" %></td>
                                             <td class="font-monospace">S/. <%= String.format("%.2f", s.getSubtotal()) %></td>
-                                            <td class="font-monospace">S/. <%= String.format("%.2f", s.getIgv()) %></td>
+                                            <td class="font-monospace text-muted">S/. <%= String.format("%.2f", s.getIgv()) %></td>
                                             <td class="font-monospace fw-bold text-primary">S/. <%= String.format("%.2f", s.getTotal()) %></td>
                                             <td><span class="badge bg-success"><%= s.getEstado() %></span></td>
                                         </tr>
@@ -386,53 +384,38 @@
 
     </div>
 
-    <!-- Scripts ECharts y Exportación -->
+    <!-- Script Avanzado de Apache ECharts con Toolbox, DataZoom y Animaciones Dinámicas -->
     <script>
-        // Gráfico de Servicios más Demandados
-        var chartServicios = echarts.init(document.getElementById('chartServicios'));
-        chartServicios.setOption({
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-            grid: { left: '3%', right: '4%', bottom: '5%', containLabel: true },
-            xAxis: { type: 'category', data: ['Rancimat OSI', 'POV Peróxidos', 'p-Anisidina'] },
-            yAxis: { type: 'value', name: 'Ingresos (S/.)' },
-            series: [{
-                name: 'Ingresos',
-                type: 'bar',
-                barWidth: '40%',
-                data: [360.00, 170.00, 95.00],
-                itemStyle: { color: '#0d9488', borderRadius: [6, 6, 0, 0] }
-            }]
-        });
+        // 1. Gráfico 1: Servicios Más Demandados (Barras / Líneas Dinámicas)
+        var chartServiciosDom = document.getElementById('chartServicios');
+        var chartServicios = echarts.init(chartServiciosDom);
 
-        // Gráfico de Estado de Stock
-        var chartStock = echarts.init(document.getElementById('chartStock'));
-        chartStock.setOption({
-            tooltip: { trigger: 'item' },
-            legend: { bottom: '0%' },
-            series: [{
-                name: 'Inventario',
-                type: 'pie',
-                radius: ['45%', '70%'],
-                itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
-                data: [
-                    { value: <%= disponiblesCount %>, name: 'Stock Disponible', itemStyle: { color: '#10b981' } },
-                    { value: <%= stockCriticoCount %>, name: 'Stock Crítico', itemStyle: { color: '#ef4444' } }
-                ]
-            }]
-        });
-
-        window.addEventListener('resize', function() {
-            chartServicios.resize();
-            chartStock.resize();
-        });
-
-        function exportarTablaExcel(tablaId, nombreArchivo) {
-            var tabla = document.getElementById(tablaId);
-            var libro = XLSX.utils.table_to_book(tabla, { sheet: "Reporte" });
-            XLSX.writeFile(libro, nombreArchivo + ".xlsx");
-        }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+        var optionServicios = {
+            animationDuration: 1800,
+            animationEasing: 'cubicOut',
+            title: {
+                text: 'Demanda e Ingresos por Ensayo',
+                subtext: 'Calculado sobre órdenes SOLPED emitidas',
+                left: 'left',
+                textStyle: { fontSize: 14, fontWeight: 'bold', color: '#1e293b' },
+                subtextStyle: { fontSize: 11, color: '#64748b' }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function (params) {
+                    var tar = params[0];
+                    return '<strong>' + tar.name + '</strong><br/>' +
+                           '<span style="color:#0d9488;">●</span> ' + tar.seriesName + ': <b>S/. ' + Number(tar.value).toFixed(2) + '</b>';
+                }
+            },
+            toolbox: {
+                show: true,
+                orient: 'horizontal',
+                left: 'right',
+                top: 'top',
+                feature: {
+                    magicType: { show: true, type: ['bar', 'line'], title: { bar: 'Ver en Barras', line: 'Ver en Líneas' } },
+                    dataView: { show: true, readOnly: true, title: 'Datos', lang: ['Vista de Datos', 'Cerrar', 'Actualizar'] },
+                    restore: { show: true, title: 'Restablecer' },
+                    saveAsImage: { show: true, title

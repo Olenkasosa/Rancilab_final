@@ -461,6 +461,24 @@
         <span class="card-arrow">Supervisar <i class="bi bi-chevron-right"></i></span>
     </div>
 </a>
+    <!-- Módulo Emisión de Certificados / Informes de Ensayo -->
+<a href="informe_ensayo.jsp" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-teal">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="card-body">
+                <h3>Emisión de Informes de Ensayo</h3>
+                <p>Certificados de Análisis (CoA) y dictamen técnico en formato membretado listo para imprimir o guardar en PDF.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">ISO 17025 / Print Ready</span>
+        <span class="card-arrow">Generar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>
     
         </div>
     </div>
