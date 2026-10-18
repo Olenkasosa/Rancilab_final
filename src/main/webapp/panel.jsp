@@ -353,6 +353,24 @@
                 </div>
             </a>
 
+         <!-- Módulo Clientes (Etapa 5 - Repository) -->
+<a href="ClienteServlet?accion=listar" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-teal">
+                <i class="bi bi-buildings"></i>
+            </div>
+            <div class="card-body">
+                <h3>Directorio de Clientes</h3>
+                <p>Plantas y empresas agroindustriales solicitantes de control de calidad lipídico.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Patrón Repository</span>
+        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>   
         </div>
     </div>
 
