@@ -443,6 +443,24 @@
         <span class="card-arrow">Ver Reportes <i class="bi bi-chevron-right"></i></span>
     </div>
 </a>
+    <!-- Módulos 9 y 10: Seguridad, Auditoría y Respaldos -->
+<a href="AuditoriaServlet" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-slate">
+                <i class="bi bi-shield-shaded"></i>
+            </div>
+            <div class="card-body">
+                <h3>Seguridad & Respaldos</h3>
+                <p>Auditoría de eventos, trazabilidad de accesos y descarga de copias de seguridad de la base de datos.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Auditoría & Backups</span>
+        <span class="card-arrow">Supervisar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>
     
         </div>
     </div>
