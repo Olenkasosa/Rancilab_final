@@ -407,7 +407,24 @@
         <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
     </div>
 </a>  
-    
+    <!-- Módulo Ventas & SOLPED (Etapa 6 - Cabecera/Detalle) -->
+<a href="SolicitudServlet?accion=listar" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-purple">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div class="card-body">
+                <h3>Ventas & SOLPED de Ensayos</h3>
+                <p>Gestión de órdenes de análisis, facturación de servicios y flujo transaccional Cabecera-Detalle.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Transacciones ACID</span>
+        <span class="card-arrow">Gestionar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>
     
         </div>
     </div>
