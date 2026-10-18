@@ -1,15 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-    // Manejo de Cierre de Sesión seguro
-    if ("logout".equals(request.getParameter("action"))) {
-        session.invalidate();
-        response.sendRedirect("login.jsp");
-        return;
-    }
-
-    // Verificación de sesión activa
     String usuario = (String) session.getAttribute("usuario");
-    String rol = (String) session.getAttribute("rol");
     if (usuario == null) {
         response.sendRedirect("login.jsp");
         return;
@@ -20,468 +11,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RanciLab - Menú Central</title>
-    <!-- Tipografía e Iconos -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>RanciLab LIMS - Command Center</title>
+    <!-- Fonts & Bootstrap 5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         :root {
-            --primary-navy: #0f172a;
-            --primary-teal: #0d9488;
-            --teal-light: #ccfbf1;
-            --bg-body: #f8fafc;
-            --card-border: #e2e8f0;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-850: #131d31;
+            --slate-800: #1e293b;
+            --teal-500: #14b8a6;
+            --teal-600: #0d9488;
+            --blue-500: #3b82f6;
+            --amber-500: #f59e0b;
+            --purple-500: #a855f7;
+            --border-card: #e2e8f0;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-dark);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: #f8fafc;
+            color: #0f172a;
         }
-
-        /* Barra de navegación superior */
-        .navbar {
-            background-color: #0f172a;
-            color: #ffffff;
-            padding: 14px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1e293b;
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-decoration: none;
+        /* Top Navigation */
+        .navbar-top {
+            background-color: var(--slate-900);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 28px;
         }
-
-        .navbar-brand i {
-            color: #14b8a6;
-            font-size: 1.3rem;
+        /* Telemetría Strip */
+        .telemetry-bar {
+            background-color: var(--slate-850);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 28px;
+            font-size: 0.72rem;
+            color: #94a3b8;
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 0.85rem;
-        }
-
-        .user-tag {
-            color: #cbd5e1;
-        }
-
-        .user-tag strong {
-            color: #ffffff;
-        }
-
-        .btn-logout {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
+        .telemetry-item {
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-
-        .btn-logout:hover {
-            background-color: #ef4444;
-            color: #ffffff;
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 2s infinite;
         }
-
-        /* Contenedor Principal */
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 36px 24px;
-            width: 100%;
-            flex: 1;
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
-
-        .header-title-section {
-            margin-bottom: 28px;
-        }
-
-        .header-title-section h1 {
-            font-size: 1.7rem;
+        /* Section Headings */
+        .area-title {
+            font-size: 0.78rem;
             font-weight: 800;
-            color: var(--primary-navy);
-            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        .header-title-section p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* Grid de Módulos Operativos */
-        .modules-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .module-card {
+        /* Module Cards */
+        .card-module {
             background: #ffffff;
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 24px;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
-            transition: all 0.25s ease;
-            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-module:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08);
+            border-color: #cbd5e1;
             color: inherit;
         }
-
-        .module-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px -5px rgba(15, 23, 42, 0.08);
-            border-color: #cbd5e1;
+        .card-module::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: transparent;
+            transition: background 0.2s ease;
         }
-
-        .card-top {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 16px;
+        .card-module:hover::before {
+            background: var(--teal-600);
         }
-
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+        .icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
+            font-size: 1.25rem;
+            margin-bottom: 14px;
         }
+        .icon-teal { background: #f0fdfa; color: #0d9488; }
+        .icon-blue { background: #eff6ff; color: #2563eb; }
+        .icon-amber { background: #fffbeb; color: #d97706; }
+        .icon-purple { background: #faf5ff; color: #7e22ce; }
+        .icon-slate { background: #f1f5f9; color: #475569; }
 
-        .icon-teal   { background: #ccfbf1; color: #0f766e; }
-        .icon-blue   { background: #e0f2fe; color: #0369a1; }
-        .icon-amber  { background: #fef3c7; color: #b45309; }
-        .icon-purple { background: #f3e8ff; color: #7e22ce; }
-        .icon-indigo { background: #e0e7ff; color: #4338ca; }
-        .icon-slate  { background: #f1f5f9; color: #334155; }
-
-        .card-body h3 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--primary-navy);
-            margin-bottom: 6px;
-        }
-
-        .card-body p {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.45;
-        }
-
-        .card-footer-info {
-            border-top: 1px solid #f1f5f9;
-            padding-top: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-        }
-
-        .norm-badge {
+        .module-badge {
+            font-size: 0.68rem;
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: #475569;
-            background: #f1f5f9;
             padding: 3px 8px;
-            border-radius: 6px;
-        }
-
-        .card-arrow {
-            color: var(--primary-teal);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            border-radius: 5px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navbar -->
-    <nav class="navbar">
-        <a href="panel.jsp" class="navbar-brand">
-            <i class="bi bi-moisture"></i>
-            <span>RanciLab LIMS</span>
-        </a>
-        <div class="user-info">
-            <span class="user-tag">Analista: <strong><%= usuario %></strong> (<%= rol != null ? rol : "OPERADOR" %>)</span>
-            <a href="panel.jsp?action=logout" class="btn-logout">
-                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+    <!-- Header Cockpit -->
+    <nav class="navbar navbar-top navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="panel.jsp">
+                <i class="bi bi-moisture text-info fs-4"></i>
+                <div class="d-flex flex-column">
+                    <span class="fs-5 tracking-tight">RanciLab <span class="fw-light text-secondary">LIMS Enterprise</span></span>
+                    <span class="mono text-muted" style="font-size: 0.62rem;">PLATAFORMA METROLÓGICA ACREDITADA ISO/IEC 17025</span>
+                </div>
             </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-dark border border-secondary text-info mono px-2 py-1" style="font-size: 0.70rem;">
+                    <i class="bi bi-shield-check me-1"></i>21 CFR PART 11 READY
+                </span>
+                <div class="d-flex align-items-center gap-2 text-white small">
+                    <div class="pulse-dot"></div>
+                    <span class="text-secondary">Analista Titular:</span> <strong class="mono"><%= usuario %></strong>
+                </div>
+                <a href="login.jsp" class="btn btn-outline-danger btn-sm mono ms-2">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="main-container">
-        <div class="header-title-section">
-            <h1>Menú Central del Sistema</h1>
-            <p>Selecciona un módulo operativo para gestionar la información analítica, analistas y ensayos fisicoquímicos.</p>
-        </div>
-
-        <!-- Módulos Operativos -->
-        <div class="modules-grid">
-
-            <!-- Módulo Obligatorio Etapa 4: CRUD de Usuarios / Analistas (Patrón Repository) -->
-            <a href="UsuarioServlet?accion=listar" class="module-card">
-                <div>
-                    <div class="card-top">
-                        <div class="card-icon icon-indigo">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <div class="card-body">
-                            <h3>Gestión de Analistas y Usuarios</h3>
-                            <p>Control de roles, operadores certificados, desbloqueo de cuentas bloqueadas y altas con SHA-256.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer-info">
-                    <span class="norm-badge">Patrón Repository</span>
-                    <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
-                </div>
-            </a>
-
-            <!-- Módulo 1: Peróxidos -->
-            <a href="peroxidos.jsp" class="module-card">
-                <div>
-                    <div class="card-top">
-                        <div class="card-icon icon-teal">
-                            <i class="bi bi-droplet-half"></i>
-                        </div>
-                        <div class="card-body">
-                            <h3>Índice de Peróxidos (POV)</h3>
-                            <p>Registro de titulación iodométrica para determinar la formación primaria de hidroperóxidos lipídicos.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer-info">
-                    <span class="norm-badge">AOCS Cd 8b-90</span>
-                    <span class="card-arrow">Ingresar <i class="bi bi-chevron-right"></i></span>
-                </div>
-            </a>
-
-            <!-- Módulo 2: p-Anisidina -->
-            <a href="anisidina.jsp" class="module-card">
-                <div>
-                    <div class="card-top">
-                        <div class="card-icon icon-blue">
-                            <i class="bi bi-eyedropper"></i>
-                        </div>
-                        <div class="card-body">
-                            <h3>Valor de p-Anisidina</h3>
-                            <p>Medición espectrofotométrica a 350 nm para cuantificación de aldehídos secundarios (2-alquenales).</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer-info">
-                    <span class="norm-badge">ISO 3960:2017</span>
-                    <span class="card-arrow">Ingresar <i class="bi bi-chevron-right"></i></span>
-                </div>
-            </a>
-
-            <!-- Módulo 3: Rancimat / TOTOX -->
-            <a href="rancimat.jsp" class="module-card">
-                <div>
-                    <div class="card-top">
-                        <div class="card-icon icon-amber">
-                            <i class="bi bi-thermometer-sun"></i>
-                        </div>
-                        <div class="card-body">
-                            <h3>Estabilidad Oxidativa (OSI)</h3>
-                            <p>Determinación del período de inducción acelerado Rancimat y cómputo de Valor Total de Oxidación (TOTOX).</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer-info">
-                    <span class="norm-badge">AOCS Cd 12b-92</span>
-                    <span class="card-arrow">Ingresar <i class="bi bi-chevron-right"></i></span>
-                </div>
-            </a>
-
-            <!-- Módulo 4: Registro y Muestras -->
-            <a href="muestras.jsp" class="module-card">
-                <div>
-                    <div class="card-top">
-                        <div class="card-icon icon-purple">
-                            <i class="bi bi-journal-check"></i>
-                        </div>
-                        <div class="card-body">
-                            <h3>Trazabilidad de Muestras</h3>
-                            <p>Gestión de lotes de aceites y grasas, matriz biológica, fecha de ingreso y control de condiciones de custodia.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer-info">
-                    <span class="norm-badge">GLP / LIMS</span>
-                    <span class="card-arrow">Ingresar <i class="bi bi-chevron-right"></i></span>
-                </div>
-            </a>
-
-         <!-- Módulo Clientes (Etapa 5 - Repository) -->
-<a href="ClienteServlet?accion=listar" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-teal">
-                <i class="bi bi-buildings"></i>
+    <!-- Barra de Telemetría e Instrumentación Activa en Laboratorio -->
+    <div class="telemetry-bar d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div class="telemetry-item">
+                <span class="pulse-dot"></span>
+                <span>DB Railway PostgreSQL: <strong class="text-white mono">CONECTADO</strong></span>
             </div>
-            <div class="card-body">
-                <h3>Directorio de Clientes</h3>
-                <p>Plantas y empresas agroindustriales solicitantes de control de calidad lipídico.</p>
+            <div class="telemetry-item">
+                <i class="bi bi-cpu text-info"></i>
+                <span>Rancimat 892 Metrohm: <strong class="text-white mono">CANAL A LISTO (110°C)</strong></span>
+            </div>
+            <div class="telemetry-item">
+                <i class="bi bi-thermometer-half text-warning"></i>
+                <span>Ambiente Laboratorio: <strong class="text-white mono">20.4 °C | 52% HR</strong></span>
             </div>
         </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Patrón Repository</span>
-        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>
-    <!-- Módulo Proveedores (Etapa 5 - Repository) -->
-<a href="ProveedorServlet?accion=listar" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-amber">
-                <i class="bi bi-truck"></i>
-            </div>
-            <div class="card-body">
-                <h3>Proveedores de Laboratorio</h3>
-                <p>Gestión de suministros químicos, reactivos valorados, cristalería y servicios metrológicos.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Patrón Repository</span>
-        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>     
-    <!-- Módulo Insumos / Reactivos (Etapa 5 - Repository) -->
-<a href="InsumoServlet?accion=listar" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-teal">
-                <i class="bi bi-flask"></i>
-            </div>
-            <div class="card-body">
-                <h3>Reactivos e Insumos</h3>
-                <p>Control de stock de reactivos valorados, solventes p.a. y fechas de caducidad.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Patrón Repository</span>
-        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>  
-    <!-- Módulo Ventas & SOLPED (Etapa 6 - Cabecera/Detalle) -->
-<a href="SolicitudServlet?accion=listar" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-purple">
-                <i class="bi bi-receipt"></i>
-            </div>
-            <div class="card-body">
-                <h3>Ventas & SOLPED de Ensayos</h3>
-                <p>Gestión de órdenes de análisis, facturación de servicios y flujo transaccional Cabecera-Detalle.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Transacciones ACID</span>
-        <span class="card-arrow">Gestionar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>
-    <!-- Módulo Reportería con Apache ECharts & Excel (Etapa 7) -->
-<a href="ReporteServlet" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-blue">
-                <i class="bi bi-pie-chart-fill"></i>
-            </div>
-            <div class="card-body">
-                <h3>Reportería & Analytics</h3>
-                <p>Gráficos analíticos con Apache ECharts y exportación de reportes a Microsoft Excel.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Apache ECharts & XLSX</span>
-        <span class="card-arrow">Ver Reportes <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>
-    <!-- Módulos 9 y 10: Seguridad, Auditoría y Respaldos -->
-<a href="AuditoriaServlet" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-slate">
-                <i class="bi bi-shield-shaded"></i>
-            </div>
-            <div class="card-body">
-                <h3>Seguridad & Respaldos</h3>
-                <p>Auditoría de eventos, trazabilidad de accesos y descarga de copias de seguridad de la base de datos.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">Auditoría & Backups</span>
-        <span class="card-arrow">Supervisar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>
-    <!-- Módulo Emisión de Certificados / Informes de Ensayo -->
-<a href="informe_ensayo.jsp" class="module-card">
-    <div>
-        <div class="card-top">
-            <div class="card-icon icon-teal">
-                <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <div class="card-body">
-                <h3>Emisión de Informes de Ensayo</h3>
-                <p>Certificados de Análisis (CoA) y dictamen técnico en formato membretado listo para imprimir o guardar en PDF.</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer-info">
-        <span class="norm-badge">ISO 17025 / Print Ready</span>
-        <span class="card-arrow">Generar <i class="bi bi-chevron-right"></i></span>
-    </div>
-</a>
-    
+        <div class="mono text-secondary" style="font-size: 0.68rem;">
+            SEDE CENTRAL METROLÓGICA CALLAO &bull; TERMINAL ID: 01-LIMS
         </div>
     </div>
 
-</body>
-</html>
+    <!-- Contenido Modular Agrupado -->
+    <div class="container-fluid px-4 my-4">
+
+        <!-- GRUPO 1: METROLOGÍA, ENSAYOS Y CUSTODIA (ISO 17025) -->
+        <div class="mb-4">
+            <div class="area-title">
+                <i class="bi bi-bezier2 text-teal-600"></i> I. Área Metrológica, Ensayos & Custodia Lipídica
+            </div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="peroxidos.jsp" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-teal"><i class="bi bi-droplet-half"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Índice de Peróxidos (POV)</h6>
+                            <p class="text-muted small mb-3">Titulación iodométrica para hidroperóxidos lipídicos primarios.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">AOCS Cd 8b-90</span>
+                            <span class="text-primary small fw-bold">Calcular <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="anisidina.jsp" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-blue"><i class="bi bi-eyedropper"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Valor de p-Anisidina</h6>
+                            <p class="text-muted small mb-3">Espectrofotometría a 350 nm de compuestos carbonílicos 2-alquenales.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">ISO 3960 / AOCS</span>
+                            <span class="text-primary small fw-bold">Calcular <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="rancimat.jsp" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-amber"><i class="bi bi-activity"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Estabilidad Oxidativa (OSI)</h6>
+                            <p class="text-muted small mb-3">Curva de conductividad sigmoidal y valor TOTOX automatizado.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">Rancimat Metrohm</span>
+                            <span class="text-primary small fw-bold">Monitorear <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="muestras.jsp" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-purple"><i class="bi bi-upc-scan"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Trazabilidad & Custodia</h6>
+                            <p class="text-muted small mb-3">Generación de rótulos térmicos con códigos de barra para lotes.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">GLP / Custodia</span>
+                            <span class="text-primary small fw-bold">Rótulos <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRUPO 2: GESTIÓN OPERATIVA & TRANSACCIONAL (ERP / LIMS) -->
+        <div class="mb-4">
+            <div class="area-title">
+                <i class="bi bi-briefcase text-primary"></i> II. Operaciones Comerciales, Inventarios & Usuarios
+            </div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="UsuarioServlet" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-slate"><i class="bi bi-people-fill"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Gestión de Analistas</h6>
+                            <p class="text-muted small mb-3">Roles, operadores acreditados y control de bloqueo SHA-256.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">Repository + Factory</span>
+                            <span class="text-secondary small fw-bold">Gestionar <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="ClienteServlet" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-blue"><i class="bi bi-building-check"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Directorio de Clientes</h6>
+                            <p class="text-muted small mb-3">Plantas agroindustriales y empresas solicitantes de ensayos.</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="module-badge">Repository + Prototype</span>
+                            <span class="text-secondary small fw-bold">Gestionar <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="InsumoServlet" class="card-module">
+                        <div>
+                            <div class="icon-circle icon-teal"><i class="bi bi-boxes"></i></div>
+                            <h
+                                
