@@ -9,6 +9,7 @@
     }
     String fechaHoy = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
+    // Parámetros recibidos por GET/POST o valores por defecto
     String certificadoNro = request.getParameter("nro") != null ? request.getParameter("nro") : "CoA-2026-PE-00894";
     String cliente = request.getParameter("cliente") != null ? request.getParameter("cliente") : "Agroindustrias del Valle S.A.C.";
     String ruc = request.getParameter("ruc") != null ? request.getParameter("ruc") : "20548963214";
@@ -20,10 +21,14 @@
     String anvVal = request.getParameter("anv") != null ? request.getParameter("anv") : "4.10";
     String osiVal = request.getParameter("osi") != null ? request.getParameter("osi") : "9.8";
 
-    double povD = Double.parseDouble(povVal);
-    double anvD = Double.parseDouble(anvVal);
+    double povD = 2.45;
+    double anvD = 4.10;
+    try { povD = Double.parseDouble(povVal); } catch (Exception e) {}
+    try { anvD = Double.parseDouble(anvVal); } catch (Exception e) {}
     double totoxD = (2 * povD) + anvD;
     String totoxStr = String.format("%.2f", totoxD);
+
+    boolean esConforme = (totoxD <= 26.0 && povD <= 10.0);
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -31,11 +36,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe Oficial de Ensayo <%= certificadoNro %> - RanciLab LIMS</title>
-    <!-- Tipografías de Alta Precisión -->
+    <!-- Fonts & Bootstrap 5 -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Generador dinámico de códigos de barra para muestra -->
+    
+    <!-- Generador dinámico de código de barras JsBarcode -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
@@ -54,20 +60,47 @@
         .mono {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Barra de control superior */
+
+        /* Barra de Herramientas y Formulario de Entrada (No se imprimen) */
         .toolbar-top {
             background: #1e293b;
             border-bottom: 1px solid #334155;
             padding: 12px 24px;
         }
+        .data-input-panel {
+            background: #131d31;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            color: #e2e8f0;
+        }
+        .data-input-panel label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 3px;
+        }
+        .data-input-panel input, .data-input-panel select {
+            font-size: 0.82rem;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #ffffff;
+        }
+        .data-input-panel input:focus, .data-input-panel select:focus {
+            background-color: #0f172a;
+            border-color: var(--cert-teal);
+            color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.25);
+        }
+
         /* Contenedor Hoja A4 Rigurosa */
         .paper-a4 {
             background: #ffffff;
             width: 210mm;
             min-height: 297mm;
             margin: 25px auto 40px auto;
-            padding: 18mm 20mm;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            padding: 16mm 20mm;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             position: relative;
             box-sizing: border-box;
             border-top: 5px solid var(--cert-navy);
@@ -76,8 +109,8 @@
             display: grid;
             grid-template-columns: 1fr auto;
             border-bottom: 2px solid var(--cert-navy);
-            padding-bottom: 14px;
-            margin-bottom: 18px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
         }
         .logo-box h2 {
             font-weight: 800;
@@ -87,10 +120,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 1.45rem;
         }
         .logo-box p {
             margin: 0;
-            font-size: 0.72rem;
+            font-size: 0.70rem;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -110,12 +144,11 @@
             display: inline-block;
             margin-bottom: 4px;
         }
-        /* Tarjetas de metadata cliente y muestra */
         .custody-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         .custody-card {
             border: 1px solid #e2e8f0;
@@ -138,11 +171,10 @@
             color: #0f172a;
             font-weight: 600;
         }
-        /* Tabla analítica oficial */
         .table-coa {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             font-size: 0.80rem;
         }
         .table-coa thead th {
@@ -163,20 +195,16 @@
         .table-coa tbody tr:nth-child(even) {
             background-color: #f8fafc;
         }
-        /* Dictamen Técnico */
         .dictamen-box {
             border: 1px solid #cbd5e1;
-            border-left: 4px solid #10b981;
-            background: #f0fdf4;
             padding: 10px 14px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
-        /* Firmas y Sello Oficial */
         .signatures-grid {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            margin-top: 40px;
+            margin-top: 36px;
             padding-top: 10px;
         }
         .sign-col {
@@ -190,10 +218,9 @@
             font-size: 0.75rem;
             color: #334155;
         }
-        /* Sello Metrológico SVG */
         .seal-wrapper {
-            width: 90px;
-            height: 90px;
+            width: 86px;
+            height: 86px;
             border: 2px dashed #0d9488;
             border-radius: 50%;
             display: flex;
@@ -201,24 +228,24 @@
             justify-content: center;
             flex-direction: column;
             color: #0d9488;
-            font-size: 0.55rem;
+            font-size: 0.52rem;
             text-transform: uppercase;
             font-weight: 800;
             text-align: center;
-            padding: 6px;
+            padding: 4px;
             margin: 0 auto;
             transform: rotate(-8deg);
         }
         .footer-legal {
             border-top: 1px solid #e2e8f0;
             padding-top: 10px;
-            margin-top: 25px;
+            margin-top: 24px;
             font-size: 0.65rem;
             color: #64748b;
             line-height: 1.4;
         }
 
-        /* Reglas @media print para impresión pura en hoja física o PDF */
+        /* Al Imprimir / Guardar en PDF se ocultan los controles */
         @media print {
             body {
                 background: none !important;
@@ -243,26 +270,79 @@
 </head>
 <body>
 
-    <!-- Barra de Herramientas No Imprimible -->
+    <!-- Barra de Acciones Superior (No Imprimible) -->
     <div class="toolbar-top no-print d-flex justify-content-between align-items-center">
         <a href="panel.jsp" class="btn btn-outline-light btn-sm">
-            <i class="bi bi-arrow-left"></i> Volver al Menú Central
+            <i class="bi bi-arrow-left"></i> Menú Principal
         </a>
-        <div class="d-flex align-items-center gap-3">
-            <span class="text-secondary small">Vista previa de impresión A4 (GLP / ISO 17025)</span>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#panelEntrada">
+                <i class="bi bi-pencil-square me-1"></i> Modificar Datos de Entrada
+            </button>
             <button onclick="window.print()" class="btn btn-success btn-sm fw-bold px-3">
                 <i class="bi bi-printer-fill me-1"></i> Imprimir / Guardar en PDF
             </button>
         </div>
     </div>
 
-    <!-- Hoja A4 Estricta de Certificado -->
+    <!-- Panel de Entrada de Datos de Resultados (No Imprimible) -->
+    <div class="collapse show no-print" id="panelEntrada">
+        <div class="data-input-panel">
+            <form method="GET" action="informe_ensayo.jsp" class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label>N° Certificado:</label>
+                    <input type="text" name="nro" class="form-control form-control-sm mono" value="<%= certificadoNro %>" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Cliente Solicitante:</label>
+                    <input type="text" name="cliente" class="form-control form-control-sm" value="<%= cliente %>" required>
+                </div>
+                <div class="col-md-2">
+                    <label>R.U.C. Cliente:</label>
+                    <input type="text" name="ruc" class="form-control form-control-sm mono" value="<%= ruc %>" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Descripción Muestra / Lote:</label>
+                    <input type="text" name="muestra" class="form-control form-control-sm" value="<%= muestra %>" required>
+                </div>
+                <div class="col-md-2">
+                    <label>Fecha Recepción:</label>
+                    <input type="text" name="fechaToma" class="form-control form-control-sm mono" value="<%= fechaToma %>">
+                </div>
+                
+                <!-- Resultados analíticos obtenidos en laboratorio -->
+                <div class="col-md-2">
+                    <label class="text-info fw-bold">POV (meq O₂/kg):</label>
+                    <input type="number" step="0.01" name="pov" class="form-control form-control-sm mono text-warning fw-bold" value="<%= povVal %>" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="text-info fw-bold">p-Anisidina (AnV):</label>
+                    <input type="number" step="0.01" name="anv" class="form-control form-control-sm mono text-warning fw-bold" value="<%= anvVal %>" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="text-info fw-bold">OSI Rancimat (h):</label>
+                    <input type="number" step="0.1" name="osi" class="form-control form-control-sm mono text-warning fw-bold" value="<%= osiVal %>" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Fecha de Ensayo:</label>
+                    <input type="text" name="fechaEnsayo" class="form-control form-control-sm mono" value="<%= fechaEnsayo %>">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-teal btn-sm w-100 fw-bold" style="background-color: #0d9488; color:#fff;">
+                        <i class="bi bi-arrow-repeat me-1"></i> Generar Certificado con estos Datos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hoja A4 Oficial del Certificado (Lo que se imprime) -->
     <div class="paper-a4">
         
         <!-- Header Oficial -->
         <div class="header-grid">
             <div class="logo-box">
-                <h2><i class="bi bi-droplet-half text-teal" style="color: #0d9488;"></i> RANCILAB LIMS S.A.C.</h2>
+                <h2><i class="bi bi-droplet-half" style="color: #0d9488;"></i> RANCILAB LIMS S.A.C.</h2>
                 <p>Laboratorio Analítico de Fisicoquímica, Rancidez y Estabilidad Lipídica</p>
                 <div class="text-muted mono mt-1" style="font-size: 0.68rem;">
                     SEDE METROLÓGICA CALLAO &bull; R.U.C. 20608974512 &bull; www.rancilab.pe
@@ -272,12 +352,11 @@
                 <div class="badge-acreditacion"><i class="bi bi-patch-check-fill me-1"></i>ISO/IEC 17025 (INACAL)</div>
                 <div class="mono fw-bold fs-6 text-dark mt-1"><%= certificadoNro %></div>
                 <div class="mono text-muted" style="font-size: 0.72rem;">Emisión: <%= fechaHoy %></div>
-                <!-- Código de barras del certificado -->
                 <svg id="barcodeCert" style="max-height: 28px; margin-top: 3px;"></svg>
             </div>
         </div>
 
-        <!-- Título Central -->
+        <!-- Título -->
         <div class="text-center mb-3">
             <h5 class="fw-bold mb-0 text-uppercase tracking-wide" style="letter-spacing: 1px; color: #091e42;">
                 CERTIFICADO DE ANÁLISIS DE CALIDAD LIPÍDICA (CoA)
@@ -285,13 +364,13 @@
             <small class="text-muted mono">DICTAMEN TÉCNICO SEGÚN NORMA CODEX ALIMENTARIUS (CXS 210-1999)</small>
         </div>
 
-        <!-- Bloque de Custodia y Datos de Recepción -->
+        <!-- Datos de Recepción & Muestra -->
         <div class="custody-box">
             <div class="custody-card">
                 <div class="custody-title"><i class="bi bi-building me-1"></i>Datos del Cliente Solicitante</div>
                 <div class="custody-value"><%= cliente %></div>
                 <div class="small text-muted mono">R.U.C.: <%= ruc %></div>
-                <div class="small text-muted">Orden SOLPED de Servicio: <strong>SOL-2026-0001</strong></div>
+                <div class="small text-muted">Orden SOLPED: <strong>SOL-2026-0001</strong></div>
             </div>
             <div class="custody-card">
                 <div class="custody-title"><i class="bi bi-box-seam me-1"></i>Datos de la Muestra & Recepción</div>
@@ -301,7 +380,7 @@
             </div>
         </div>
 
-        <!-- Tabla Analítica Cuantitativa -->
+        <!-- Tabla Cuantitativa de Ensayos -->
         <table class="table-coa">
             <thead>
                 <tr>
@@ -317,7 +396,7 @@
                 <tr>
                     <td><strong>Índice de Peróxidos (POV)</strong><br><small class="text-muted">Oxidación primaria (hidroperóxidos)</small></td>
                     <td class="mono small">AOCS Cd 8b-90 (Titulación)</td>
-                    <td class="text-center mono fw-bold"><%= povVal %></td>
+                    <td class="text-center mono fw-bold"><%= String.format("%.2f", povD) %></td>
                     <td class="text-center mono text-muted">&plusmn; 0.12</td>
                     <td class="text-center small">meq O₂/kg</td>
                     <td class="text-center small mono">&le; 10.0</td>
@@ -325,7 +404,7 @@
                 <tr>
                     <td><strong>Valor p-Anisidina (AnV)</strong><br><small class="text-muted">Oxidación secundaria (2-alquenales)</small></td>
                     <td class="mono small">ISO 3960 / AOCS Cd 18-90</td>
-                    <td class="text-center mono fw-bold"><%= anvVal %></td>
+                    <td class="text-center mono fw-bold"><%= String.format("%.2f", anvD) %></td>
                     <td class="text-center mono text-muted">&plusmn; 0.18</td>
                     <td class="text-center small">adimensional</td>
                     <td class="text-center small mono">&le; 15.0</td>
@@ -338,31 +417,38 @@
                     <td class="text-center small">horas</td>
                     <td class="text-center small mono">&ge; 6.0 h</td>
                 </tr>
-                <tr style="background-color: #f0fdfa;">
+                <tr style="background-color: <%= esConforme ? "#f0fdfa" : "#fff1f2" %>;">
                     <td><strong>Valor Total de Oxidación (TOTOX)</strong><br><small class="text-muted">Cálculo: (2 &times; POV) + AnV</small></td>
                     <td class="mono small">AOCS Formula Standard</td>
-                    <td class="text-center mono fw-bold text-success fs-6"><%= totoxStr %></td>
+                    <td class="text-center mono fw-bold <%= esConforme ? "text-success" : "text-danger" %> fs-6"><%= totoxStr %></td>
                     <td class="text-center mono text-muted">&plusmn; 0.28</td>
                     <td class="text-center small">adimensional</td>
-                    <td class="text-center small mono text-success fw-bold">&le; 26.0</td>
+                    <td class="text-center small mono fw-bold <%= esConforme ? "text-success" : "text-danger" %>">&le; 26.0</td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Dictamen de Conformidad -->
-        <div class="dictamen-box">
+        <!-- Dictamen Técnico según Cálculos -->
+        <div class="dictamen-box" style="border-left: 4px solid <%= esConforme ? "#10b981" : "#ef4444" %>; background: <%= esConforme ? "#f0fdf4" : "#fef2f2" %>;">
             <div class="d-flex align-items-center justify-content-between mb-1">
-                <span class="mono fw-bold text-success" style="font-size: 0.75rem;">
-                    <i class="bi bi-check-circle-fill me-1"></i> DICTAMEN DE CONFORMIDAD: CONFORME
+                <span class="mono fw-bold <%= esConforme ? "text-success" : "text-danger" %>" style="font-size: 0.75rem;">
+                    <i class="bi <%= esConforme ? "bi-check-circle-fill" : "bi-x-circle-fill" %> me-1"></i>
+                    DICTAMEN TÉCNICO: <%= esConforme ? "CONFORME" : "NO CONFORME" %>
                 </span>
-                <span class="badge bg-success mono" style="font-size: 0.65rem;">CUMPLE ESPECIFICACIONES</span>
+                <span class="badge <%= esConforme ? "bg-success" : "bg-danger" %> mono" style="font-size: 0.65rem;">
+                    <%= esConforme ? "CUMPLE ESPECIFICACIONES CODEX" : "RANCIDEZ / SUPERA LÍMITES" %>
+                </span>
             </div>
             <p class="mb-0 text-muted" style="font-size: 0.74rem; line-height: 1.35;">
-                La muestra analizada cumple satisfactoriamente con los criterios de inocuidad y frescura lipídica establecidos por la Norma Internacional <strong>Codex CXS 210-1999</strong> para aceites vegetales comestibles destinados al consumo humano directo o formulación industrial.
+                <% if (esConforme) { %>
+                    La muestra analizada cumple satisfactoriamente con los criterios de inocuidad y estabilidad oxidativa establecidos por la Norma Internacional <strong>Codex CXS 210-1999</strong> para aceites vegetales comerciales.
+                <% } else { %>
+                    La muestra analizada presenta índices de oxidación que exceden las tolerancias máximas establecidas por la Norma <strong>Codex CXS 210-1999</strong>, catalogándose como no apta para consumo directo sin refinación correctiva.
+                <% } %>
             </p>
         </div>
 
-        <!-- Bloque de Firmas y Timbre Oficial -->
+        <!-- Firmas Oficiales y Sello -->
         <div class="signatures-grid">
             <div class="sign-col">
                 <div class="sign-line">
@@ -400,7 +486,7 @@
 
     </div>
 
-    <!-- Script de generación de código de barras JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             try {
