@@ -370,7 +370,26 @@
         <span class="norm-badge">Patrón Repository</span>
         <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
     </div>
-</a>   
+</a>
+    <!-- Módulo Proveedores (Etapa 5 - Repository) -->
+<a href="ProveedorServlet?accion=listar" class="module-card">
+    <div>
+        <div class="card-top">
+            <div class="card-icon icon-amber">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div class="card-body">
+                <h3>Proveedores de Laboratorio</h3>
+                <p>Gestión de suministros químicos, reactivos valorados, cristalería y servicios metrológicos.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer-info">
+        <span class="norm-badge">Patrón Repository</span>
+        <span class="card-arrow">Administrar <i class="bi bi-chevron-right"></i></span>
+    </div>
+</a>     
+         
         </div>
     </div>
 
