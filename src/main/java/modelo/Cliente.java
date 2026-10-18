@@ -1,6 +1,6 @@
 package modelo;
 
-public class Cliente {
+public class Cliente implements Cloneable {
     private int id;
     private String rucDni;
     private String razonSocial;
@@ -10,6 +10,23 @@ public class Cliente {
     private String estado;
 
     public Cliente() {}
+
+    // Implementación del Patrón Creacional Prototype
+    @Override
+    public Cliente clone() {
+        try {
+            return (Cliente) super.clone();
+        } catch (CloneNotSupportedException e) {
+            Cliente copia = new Cliente();
+            copia.setRucDni(this.rucDni);
+            copia.setRazonSocial(this.razonSocial);
+            copia.setContacto(this.contacto);
+            copia.setEmail(this.email);
+            copia.setTelefono(this.telefono);
+            copia.setEstado(this.estado);
+            return copia;
+        }
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
